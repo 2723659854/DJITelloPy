@@ -1,5 +1,6 @@
 from djitellopy import Tello
 import cv2
+""" 游戏手柄 """
 import pygame
 import numpy as np
 import time
@@ -51,54 +52,69 @@ class FrontEnd(object):
 
         # Drone velocities between -100~100
         # 无人机各方向速度在-100~100之间
+        """ 前后速度 """
         self.for_back_velocity = 0
+        """ 所有速度 """
         self.left_right_velocity = 0
+        """ 上下速度 """
         self.up_down_velocity = 0
+        """ 偏转速度 """
         self.yaw_velocity = 0
+        """ 速度10cm/s """
         self.speed = 10
-
+        """ 未发送命令 """
         self.send_rc_control = False
 
         # create update timer
         # 创建上传定时器
         pygame.time.set_timer(pygame.USEREVENT + 1, 1000 // FPS)
 
+    """ 运行 """
     def run(self):
-
+        """ 链接无人机 """
         self.tello.connect()
+        """ 设置飞行速度 """
         self.tello.set_speed(self.speed)
 
         # In case streaming is on. This happens when we quit this program without the escape key.
         # 防止视频流已开启。这会在不使用ESC键退出的情况下发生。
         self.tello.streamoff()
         self.tello.streamon()
-
+        """ 获取无人机摄像头 """
         frame_read = self.tello.get_frame_read()
-
+        """ 是否应该停止无人机：否 """
         should_stop = False
         while not should_stop:
-
+            """ 循环获取手柄传递的事件 """
             for event in pygame.event.get():
+                """ 自定义事件 """
                 if event.type == pygame.USEREVENT + 1:
+                    """ 更新 """
                     self.update()
+                """ 退出 """
                 elif event.type == pygame.QUIT:
                     should_stop = True
+                """ 用户按下了键盘 """
                 elif event.type == pygame.KEYDOWN:
+                    """ 如果按得是esc退出键，那么退出 """
                     if event.key == pygame.K_ESCAPE:
                         should_stop = True
                     else:
+                        """ 否则触发本对象的按键事件 """
                         self.keydown(event.key)
+                """ 用户松开按键事件 """
                 elif event.type == pygame.KEYUP:
                     self.keyup(event.key)
-
+            """ 如果摄像头被关闭，跳出循环 """
             if frame_read.stopped:
                 break
-
+            """ 屏幕填充黑色 """
             self.screen.fill([0, 0, 0])
-
+            """ 获取图像 """
             frame = frame_read.frame
             # battery n. 电池
             text = "Battery: {}%".format(self.tello.get_battery())
+            """ 手柄显示屏显示电量 """
             cv2.putText(frame, text, (5, 720 - 5),
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

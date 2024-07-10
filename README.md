@@ -88,3 +88,10 @@ Comments in the examples are mostly in both english and chinese.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details
+
+## 笔记
+
+从理论上来说，这个可以使用php来实现对无人机的控制。关键点是抓包sdk传输给无人机的数据，如果是明文，那么直接发送命令即可，如果是加密，那么需要找到
+相关的sdk加密方式。本质上是udp通信，使用udp传输命令。
+
+
